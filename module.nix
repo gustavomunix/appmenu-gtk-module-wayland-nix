@@ -1,12 +1,16 @@
-{ config, lib, pkgs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 
 let
   cfg = config.programs.appmenu-gtk-module-wayland;
   pkg = pkgs.callPackage ./package.nix { };
 in
 {
-  options.programs.appmenu-gtk-module-wayland.enable =
-    lib.mkEnableOption "módulo GTK3 de menu global (appmenu) para o Plasma Wayland";
+  options.programs.appmenu-gtk-module-wayland.enable = lib.mkEnableOption "módulo GTK3 de menu global (appmenu) para o Plasma Wayland";
 
   config = lib.mkIf cfg.enable {
     environment.systemPackages = [ pkg ];
