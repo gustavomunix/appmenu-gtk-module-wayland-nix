@@ -84,6 +84,12 @@ O overlay só fornece o pacote; a ativação (script de sessão + schema) fica p
 - O schema é compilado no `postInstall`; o setup hook do glib depois o move para `share/gsettings-schemas/<nome>/glib-2.0/schemas`, que é o layout esperado pelo `wrapGAppsHook`.
 - Não instala a unit systemd opcional do upstream: no Plasma a ativação confiável é o script de ambiente da sessão.
 
+## Desenvolvimento local
+
+Se este repo for consumido como input `git+file://` (como no `nixos-config`), o
+flake lê apenas o que está commitado. Depois de editar `package.nix` ou
+`module.nix`, commite e rode `nix flake update appmenu` no repo consumidor.
+
 ## Atualizar o upstream
 
 ```sh
