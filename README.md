@@ -7,7 +7,7 @@ Flake que empacota o [appmenu-gtk-module-wayland](https://github.com/guiodic/app
 ```nix
 {
   inputs.appmenu = {
-    url = "github:SEU_USUARIO/appmenu-gtk-module-wayland-nix";
+    url = "github:gustavomunix/appmenu-gtk-module-wayland-nix";
     inputs.nixpkgs.follows = "nixpkgs";
   };
 
@@ -48,7 +48,7 @@ gsettings set org.appmenu.gtk-module.wayland always-show-inner-menu true
 ## Pacote avulso
 
 ```sh
-nix build github:SEU_USUARIO/appmenu-gtk-module-wayland-nix
+nix build github:gustavomunix/appmenu-gtk-module-wayland-nix
 ```
 
 O resultado tem:
