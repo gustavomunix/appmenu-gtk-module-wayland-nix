@@ -7,27 +7,41 @@
 
 let
   cfg = config.programs.appmenu-gtk-module-wayland;
-  pkg = pkgs.callPackage ./package.nix { };
+  schemaDir = "${cfg.package}/share/gsettings-schemas/${cfg.package.name}";
+  gtkModuleDir = "${cfg.package}/lib/gtk-3.0";
 in
 {
-  options.programs.appmenu-gtk-module-wayland.enable = lib.mkEnableOption "módulo GTK3 de menu global (appmenu) para o Plasma Wayland";
+  options.programs.appmenu-gtk-module-wayland = {
+    enable = lib.mkEnableOption "módulo GTK3 de menu global (appmenu) para o Plasma Wayland";
+
+    package = lib.mkOption {
+      type = lib.types.package;
+      default = pkgs.callPackage ./package.nix { };
+      defaultText = lib.literalExpression "pkgs.callPackage ./package.nix { }";
+      description = "Pacote appmenu-gtk-module-wayland a instalar.";
+    };
+  };
 
   config = lib.mkIf cfg.enable {
-    environment.systemPackages = [ pkg ];
+    environment = {
+      systemPackages = [ cfg.package ];
+      pathsToLink = [ "/lib/gtk-3.0" ];
 
-    # O perfil do sistema já expõe lib/gtk-3.0 no GTK_PATH (pathsToLink),
-    # então o módulo em $out/lib/gtk-3.0/modules é achado pelo nome.
-    # O Plasma lê /etc/xdg/plasma-workspace/env/*.sh no começo da sessão e
-    # importa as variáveis para o ambiente; o script do upstream só ativa
-    # GTK_MODULES/UBUNTU_MENUPROXY quando a sessão é Wayland.
-    environment.etc."xdg/plasma-workspace/env/appmenu-gtk-module-wayland.sh".source =
-      "${pkg}/etc/profile.d/appmenu-gtk-module-wayland.sh";
-
-    # Torna o schema org.appmenu.gtk-module.wayland visível para todos os
-    # apps GTK sem esconder os schemas dos outros pacotes: o GLib procura
-    # $XDG_DATA_DIRS/glib-2.0/schemas/gschemas.compiled.
-    environment.sessionVariables.XDG_DATA_DIRS = [
-      "${pkg}/share/gsettings-schemas/${pkg.name}"
-    ];
+      # O Plasma lê /etc/xdg/plasma-workspace/env/*.sh no começo da sessão.
+      # O script do upstream só ativa GTK_MODULES/UBUNTU_MENUPROXY no Wayland;
+      # também adicionamos o diretório do módulo em GTK_PATH e o schema em
+      # XDG_DATA_DIRS preservando os valores existentes da sessão.
+      etc."xdg/plasma-workspace/env/appmenu-gtk-module-wayland.sh".text = ''
+        . "${cfg.package}/etc/profile.d/appmenu-gtk-module-wayland.sh"
+        case ":''${GTK_PATH:-}:" in
+          *:"${gtkModuleDir}":*) ;;
+          *) export GTK_PATH="${gtkModuleDir}''${GTK_PATH:+:$GTK_PATH}" ;;
+        esac
+        case ":''${XDG_DATA_DIRS:-}:" in
+          *:"${schemaDir}":*) ;;
+          *) export XDG_DATA_DIRS="${schemaDir}:''${XDG_DATA_DIRS:-/usr/local/share:/usr/share}" ;;
+        esac
+      '';
+    };
   };
 }
