@@ -12,7 +12,7 @@
   wayland,
 }:
 
-stdenv.mkDerivation (finalAttrs: {
+stdenv.mkDerivation {
   pname = "appmenu-gtk-module-wayland";
   version = "0-unstable-2026-11-03";
 
@@ -55,4 +55,4 @@ stdenv.mkDerivation (finalAttrs: {
     license = lib.licenses.lgpl3Plus;
     platforms = lib.platforms.linux;
   };
-})
+}
